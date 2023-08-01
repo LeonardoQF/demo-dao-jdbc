@@ -4,6 +4,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -23,8 +24,44 @@ public class SellerDaoJDBC implements SellerDao {
 		this.conn = conn;
 	}
 
+	
+	/**Este método recebe um objeto Seller e o insere na tabela seller do banco de dados.
+	 * 
+	 * 
+	 * @param obj o objeto seller a ser inserido.
+	 * @throws DbException Caso nenhuma linha seja afetada pelo insert. 
+	 *   
+	 **/
+	
 	@Override
 	public void insert(Seller obj) {
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("INSERT INTO seller(Name, Email, BirthDate, BaseSalary, DepartmentId) "
+					+ "VALUES " + "(?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS);
+
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+
+			int rowsAffected = st.executeUpdate();
+
+			if (rowsAffected > 0) {
+				ResultSet rs = st.getGeneratedKeys();
+				if (rs.next()) {
+					int id = rs.getInt(1);
+					obj.setId(id);
+				}
+				DB.closeResultSet(rs);
+			} else
+				throw new DbException("Unexpected error, no rows affected");
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+		}
 
 	}
 
@@ -38,6 +75,13 @@ public class SellerDaoJDBC implements SellerDao {
 
 	}
 
+	
+	/** Retorna um objeto Seller de acordo com o id fornecido.
+	 *
+	 * 
+	 * @param id o id do Seller a ser retornado.
+	 * @return obj um objeto que contém os atributos do Seller especificado pelo parâmetro id.
+	 **/
 	@Override
 	public Seller findById(Integer id) {
 		PreparedStatement st = null;
