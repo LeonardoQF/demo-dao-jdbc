@@ -66,6 +66,12 @@ public class SellerDaoJDBC implements SellerDao {
 
 	}
 
+	/**
+	 * Atualiza um dado no banco de dados passado um objeto de tipo Seller.
+	 * 
+	 * @param um objeto de Seller contendo os atributos a serem atualizados.
+	 * @throws DbException.
+	 */
 	@Override
 	public void update(Seller obj) {
 
@@ -94,9 +100,34 @@ public class SellerDaoJDBC implements SellerDao {
 
 	}
 
+	
+	/** Deletes a Seller entry from the 'seller' table in the database from on a given id.
+	 * 
+	 * @param id The id of the seller to delete from the database's seller table.
+	 */
 	@Override
 	public void deleteById(Integer id) {
 
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("""
+					DELETE FROM seller
+					WHERE id = ?
+					""");
+			
+			st.setInt(1, id);
+
+			int rowsAffected = st.executeUpdate();
+			
+			if(rowsAffected == 0) {
+				throw new DbException("Entered id does not exist");
+			}
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+		}
 	}
 
 	/**
