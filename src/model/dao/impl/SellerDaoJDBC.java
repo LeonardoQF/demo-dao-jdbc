@@ -24,15 +24,16 @@ public class SellerDaoJDBC implements SellerDao {
 		this.conn = conn;
 	}
 
-	
-	/**Este método recebe um objeto Seller e o insere na tabela seller do banco de dados.
+	/**
+	 * Este método recebe um objeto Seller e o insere na tabela seller do banco de
+	 * dados.
 	 * 
 	 * 
 	 * @param obj o objeto seller a ser inserido.
-	 * @throws DbException Caso nenhuma linha seja afetada pelo insert. 
-	 *   
+	 * @throws DbException Caso nenhuma linha seja afetada pelo insert.
+	 * 
 	 **/
-	
+
 	@Override
 	public void insert(Seller obj) {
 		PreparedStatement st = null;
@@ -68,6 +69,29 @@ public class SellerDaoJDBC implements SellerDao {
 	@Override
 	public void update(Seller obj) {
 
+		PreparedStatement st = null;
+		try {
+			st = conn.prepareStatement("""
+					UPDATE seller
+					set Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?
+					WHERE id = ?
+					""");
+
+			st.setString(1, obj.getName());
+			st.setString(2, obj.getEmail());
+			st.setDate(3, new java.sql.Date(obj.getBirthDate().getTime()));
+			st.setDouble(4, obj.getBaseSalary());
+			st.setInt(5, obj.getDepartment().getId());
+			st.setInt(6, obj.getId());
+
+			st.executeUpdate();
+
+		} catch (SQLException e) {
+			throw new DbException(e.getMessage());
+		} finally {
+			DB.closeStatement(st);
+		}
+
 	}
 
 	@Override
@@ -75,12 +99,13 @@ public class SellerDaoJDBC implements SellerDao {
 
 	}
 
-	
-	/** Retorna um objeto Seller de acordo com o id fornecido.
+	/**
+	 * Retorna um objeto Seller de acordo com o id fornecido.
 	 *
 	 * 
 	 * @param id o id do Seller a ser retornado.
-	 * @return obj um objeto que contém os atributos do Seller especificado pelo parâmetro id.
+	 * @return obj um objeto que contém os atributos do Seller especificado pelo
+	 *         parâmetro id.
 	 **/
 	@Override
 	public Seller findById(Integer id) {
@@ -113,6 +138,14 @@ public class SellerDaoJDBC implements SellerDao {
 		}
 	}
 
+	/**
+	 * Instancia e retorna um Seller, resgatando seus atributos do banco de dados.
+	 * 
+	 * @param rs  Um objeto que implementa a interface ResultSet
+	 * @param dep O departamento para atribuir ao objeto seller retornado.
+	 * @return obj O objeto instanciado de seller.
+	 * @throws SQLException
+	 */
 	private Seller instantiateSeller(ResultSet rs, Department dep) throws SQLException {
 		Seller obj = new Seller();
 		obj.setId(rs.getInt("Id"));
@@ -133,6 +166,12 @@ public class SellerDaoJDBC implements SellerDao {
 		return dep;
 	}
 
+	/**
+	 * Retorna todos as entradas da tabela Seller em uma lista.
+	 * 
+	 * @return list A lista de seller's da tabela.
+	 * @throws DbException
+	 */
 	@Override
 	public List<Seller> findAll() {
 
@@ -172,6 +211,15 @@ public class SellerDaoJDBC implements SellerDao {
 
 	}
 
+	/**
+	 * Retorna uma lista de Sellers do banco de dados, fornecido o departamento.
+	 * 
+	 * @param department um objeto departamento do banco de dados que o seller
+	 *                   possui.
+	 * @return list a lista de Seller que possuem o departamento.
+	 * @throws DbException.
+	 * 
+	 */
 	@Override
 	public List<Seller> findByDepartment(Department department) {
 		PreparedStatement st = null;
