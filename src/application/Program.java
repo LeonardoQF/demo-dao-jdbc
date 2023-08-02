@@ -12,7 +12,7 @@ import model.entities.Seller;
 public class Program {
 
 	public static void main(String[] args) {
-
+		/*
 		SellerDao sellerDao = DaoFactory.createSellerDao();
 		
 		Scanner scan = new Scanner(System.in);
@@ -51,7 +51,7 @@ public class Program {
 		System.out.println("Deletion completed");
 		
 		scan.close();
-		
+		*/
 	}
 
 }

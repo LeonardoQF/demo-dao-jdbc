@@ -69,7 +69,7 @@ public class SellerDaoJDBC implements SellerDao {
 	/**
 	 * Atualiza um dado no banco de dados passado um objeto de tipo Seller.
 	 * 
-	 * @param um objeto de Seller contendo os atributos a serem atualizados.
+	 * @param obj um objeto Seller contendo os atributos a serem atualizados.
 	 * @throws DbException.
 	 */
 	@Override
@@ -77,11 +77,13 @@ public class SellerDaoJDBC implements SellerDao {
 
 		PreparedStatement st = null;
 		try {
-			st = conn.prepareStatement("""
+			st = conn.prepareStatement(
+					"""
 					UPDATE seller
 					set Name = ?, Email = ?, BirthDate = ?, BaseSalary = ?, DepartmentId = ?
 					WHERE id = ?
-					""");
+					"""
+					);
 
 			st.setString(1, obj.getName());
 			st.setString(2, obj.getEmail());
@@ -101,9 +103,9 @@ public class SellerDaoJDBC implements SellerDao {
 	}
 
 	
-	/** Deletes a Seller entry from the 'seller' table in the database from on a given id.
+	/** Deletes a seller entry in the database whose id is the same as the given 'id' parameter
 	 * 
-	 * @param id The id of the seller to delete from the database's seller table.
+	 * @param id the id of the seller who is going to be deleted from the database
 	 */
 	@Override
 	public void deleteById(Integer id) {
@@ -145,7 +147,7 @@ public class SellerDaoJDBC implements SellerDao {
 		try {
 			st = conn.prepareStatement(
 					"SELECT seller.*, department.Name as DepName" + " FROM seller INNER JOIN department"
-							+ " ON seller.departmentId = department.id" + " Where seller.id = ?");
+							+ " ON seller.departmentId = department.id" + " WHERE seller.id = ?");
 
 			st.setInt(1, id);
 			rs = st.executeQuery();
